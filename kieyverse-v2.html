@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KIEYVERSE — Digital Universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@200;300;400;500;600&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ink:#03050d;
+  --ink2:#070a17;
+  --c:#00ffe1;
+  --c2:#7b2fff;
+  --c3:#ff2d6b;
+  --w:#e8eeff;
+  --dim:#3a4060;
+  --glass:rgba(255,255,255,0.03);
+  --gb:rgba(255,255,255,0.06);
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--ink);
+  color:var(--w);
+  font-family:'Outfit',sans-serif;
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── CURSOR ── */
+#cur{
+  position:fixed;width:12px;height:12px;
+  background:var(--c);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  mix-blend-mode:screen;
+  transition:transform .08s;
+  transform:translate(-50%,-50%);
+}
+#cur2{
+  position:fixed;width:40px;height:40px;
+  border:1px solid rgba(0,255,225,.35);
+  border-radius:50%;pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:width .25s,height .25s,border-color .25s;
+}
+#cur3{
+  position:fixed;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(0,255,225,.04) 0%,transparent 70%);
+  border-radius:50%;pointer-events:none;z-index:9997;
+  transform:translate(-50%,-50%);
+}
+
+/* ── NOISE OVERLAY ── */
+#noise{
+  position:fixed;inset:0;z-index:1;
+  opacity:.025;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px 200px;
+}
+
+/* ── WEBGL CANVAS ── */
+#bg-canvas{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:68px;padding:0 4%;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(3,5,13,.55);
+  backdrop-filter:blur(24px) saturate(180%);
+  border-bottom:1px solid rgba(0,255,225,.07);
+}
+.nlogo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.7rem;letter-spacing:.12em;
+  background:linear-gradient(90deg,var(--c),var(--c2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.nlinks{display:flex;gap:2.2rem;list-style:none;}
+.nlinks a{
+  text-decoration:none;color:var(--dim);
+  font-size:.78rem;font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;
+  transition:color .2s;position:relative;
+}
+.nlinks a::after{
+  content:'';position:absolute;bottom:-4px;left:0;
+  width:0;height:1px;background:var(--c);
+  transition:width .3s;
+}
+.nlinks a:hover{color:var(--w);}
+.nlinks a:hover::after{width:100%;}
+
+.ncta{
+  font-family:'Fira Mono',monospace;
+  font-size:.72rem;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.55rem 1.3rem;
+  border:1px solid var(--c);
+  background:transparent;color:var(--c);
+  border-radius:2px;
+  cursor:none;text-decoration:none;
+  position:relative;overflow:hidden;
+  transition:color .3s;
+}
+.ncta::before{
+  content:'';position:absolute;
+  inset:0;background:var(--c);
+  transform:translateX(-101%);
+  transition:transform .3s cubic-bezier(.7,0,.3,1);
+}
+.ncta:hover{color:var(--ink);}
+.ncta:hover::before{transform:translateX(0);}
+.ncta span{position:relative;z-index:1;}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding:120px 4% 80px;
+  position:relative;z-index:2;
+  overflow:hidden;
+}
+
+.hero-left{flex:1;max-width:700px;}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:.6rem;
+  font-family:'Fira Mono',monospace;
+  font-size:.68rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--c);
+  margin-bottom:2.5rem;
+  animation:fadeSlide .8s ease both;
+}
+.eyebrow-line{
+  width:32px;height:1px;background:var(--c);
+  display:block;
+}
+
+.hero-h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(5rem,12vw,10.5rem);
+  line-height:.92;letter-spacing:.04em;
+  margin-bottom:2rem;
+  animation:fadeSlide .8s .1s ease both;
+}
+.h1-stroke{
+  -webkit-text-stroke:1px rgba(0,255,225,.4);
+  color:transparent;
+  display:block;
+}
+.h1-fill{
+  color:var(--w);display:block;
+  position:relative;
+}
+.h1-fill::after{
+  content:attr(data-text);
+  position:absolute;top:0;left:0;
+  background:linear-gradient(90deg,var(--c),var(--c2),var(--c3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  clip-path:inset(0 100% 0 0);
+  transition:clip-path 1.2s cubic-bezier(.7,0,.3,1);
+}
+.h1-fill.reveal::after{clip-path:inset(0 0% 0 0);}
+
+.hero-sub{
+  font-size:1rem;font-weight:300;
+  color:rgba(232,238,255,.5);
+  line-height:1.8;max-width:460px;
+  margin-bottom:3rem;
+  animation:fadeSlide .8s .2s ease both;
+}
+
+.hero-ctas{
+  display:flex;gap:1rem;flex-wrap:wrap;
+  animation:fadeSlide .8s .3s ease both;
+}
+
+/* ── MARQUEE ── */
+.marquee-wrap{
+  overflow:hidden;
+  border-top:1px solid var(--gb);
+  border-bottom:1px solid var(--gb);
+  background:rgba(0,255,225,.02);
+  padding:.9rem 0;
+  position:relative;z-index:2;
+}
+.marquee-track{
+  display:flex;gap:0;
+  animation:marquee 22s linear infinite;
+  width:max-content;
+}
+.marquee-item{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem;letter-spacing:.16em;
+  color:var(--dim);padding:0 2.5rem;
+  white-space:nowrap;
+  display:flex;align-items:center;gap:2.5rem;
+}
+.marquee-item::after{
+  content:'✦';color:var(--c);font-size:.6rem;
+}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ── SECTION COMMONS ── */
+.s-wrap{padding:110px 4%;position:relative;z-index:2;}
+.s-label{
+  font-family:'Fira Mono',monospace;
+  font-size:.66rem;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--c);
+  display:flex;align-items:center;gap:.8rem;
+  margin-bottom:1.2rem;
+}
+.s-label::before{content:'';display:block;width:28px;height:1px;background:var(--c);}
+.s-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(2.5rem,5vw,4.5rem);
+  letter-spacing:.04em;line-height:1;
+  margin-bottom:1.2rem;
+}
+.s-desc{
+  font-size:.95rem;color:rgba(232,238,255,.45);
+  font-weight:300;line-height:1.8;max-width:480px;
+}
+
+/* ── SERVICES: LARGE HOVER CARDS ── */
+#services{background:var(--ink2);}
+
+.services-list{
+  margin-top:5rem;
+  display:flex;flex-direction:column;
+  border-top:1px solid var(--gb);
+}
+.svc-row{
+  display:grid;
+  grid-template-columns:60px 1fr auto 1fr;
+  align-items:center;gap:2rem;
+  padding:2rem 0;
+  border-bottom:1px solid var(--gb);
+  position:relative;overflow:hidden;
+  cursor:none;
+  transition:padding .4s cubic-bezier(.7,0,.3,1);
+}
+.svc-row::before{
+  content:'';position:absolute;
+  left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--c),var(--c2));
+  transform:scaleY(0);transform-origin:bottom;
+  transition:transform .4s cubic-bezier(.7,0,.3,1);
+}
+.svc-row:hover::before{transform:scaleY(1);}
+.svc-row:hover{padding-left:1.5rem;}
+
+.svc-num{
+  font-family:'Fira Mono',monospace;
+  font-size:.7rem;color:var(--dim);letter-spacing:.1em;
+}
+.svc-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1.8rem,3.5vw,3rem);
+  letter-spacing:.06em;
+  background:linear-gradient(90deg,var(--w),var(--dim));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  transition:background .4s;
+}
+.svc-row:hover .svc-name{
+  background:linear-gradient(90deg,var(--c),var(--c2));
+  -webkit-background-clip:text;background-clip:text;
+}
+.svc-tag{
+  font-family:'Fira Mono',monospace;
+  font-size:.65rem;color:var(--dim);
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:.3rem .8rem;
+  border:1px solid var(--gb);
+  border-radius:100px;
+  white-space:nowrap;
+}
+.svc-desc{
+  font-size:.85rem;color:rgba(232,238,255,.4);
+  font-weight:300;line-height:1.7;
+  max-width:380px;
+}
+.svc-icon{
+  position:absolute;right:5%;top:50%;transform:translateY(-50%);
+  font-size:3rem;opacity:0;
+  transition:opacity .4s,transform .4s;
+}
+.svc-row:hover .svc-icon{opacity:.15;transform:translateY(-50%) scale(1.2);}
+
+/* ── BENTO GRID (WHY US) ── */
+#why-us{background:var(--ink);}
+
+.bento-grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  grid-template-rows:auto;
+  gap:1px;
+  background:var(--gb);
+  border:1px solid var(--gb);
+  border-radius:16px;
+  overflow:hidden;
+  margin-top:4rem;
+}
+
+.bento-cell{
+  background:var(--ink2);
+  padding:2.5rem;
+  position:relative;overflow:hidden;
+  opacity:0;transform:scale(.97);
+  transition:opacity .6s,transform .6s,background .3s;
+}
+.bento-cell.vis{opacity:1;transform:scale(1);}
+.bento-cell:hover{background:rgba(10,14,32,.98);}
+
+.b1{grid-column:span 5;grid-row:span 2;}
+.b2{grid-column:span 4;}
+.b3{grid-column:span 3;}
+.b4{grid-column:span 4;}
+.b5{grid-column:span 3;}
+.b6{grid-column:span 5;}
+.b7{grid-column:span 7;}
+
+.bento-stat{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:5rem;letter-spacing:-.01em;line-height:1;
+  background:linear-gradient(135deg,var(--c),var(--c2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:.5rem;
+}
+.bento-label{
+  font-size:.75rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);
+  font-weight:500;
+}
+.bento-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.9rem;letter-spacing:.06em;
+  margin-bottom:.8rem;
+}
+.bento-body{
+  font-size:.85rem;color:rgba(232,238,255,.4);
+  font-weight:300;line-height:1.7;
+}
+.bento-icon{
+  font-size:3.5rem;margin-bottom:1rem;
+  display:block;
+}
+.bento-glow{
+  position:absolute;bottom:-40px;right:-40px;
+  width:180px;height:180px;
+  background:radial-gradient(circle,rgba(0,255,225,.08),transparent 65%);
+  border-radius:50%;pointer-events:none;
+}
+.bento-glow2{
+  background:radial-gradient(circle,rgba(123,47,255,.1),transparent 65%);
+}
+.bento-badge{
+  display:inline-block;
+  font-family:'Fira Mono',monospace;
+  font-size:.6rem;letter-spacing:.12em;
+  text-transform:uppercase;
+  padding:.25rem .7rem;
+  background:rgba(0,255,225,.08);
+  border:1px solid rgba(0,255,225,.2);
+  color:var(--c);border-radius:100px;
+  margin-bottom:1.2rem;
+}
+
+/* ── JOBS ── */
+#careers{background:var(--ink2);}
+
+.jobs-header{
+  display:flex;align-items:flex-end;
+  justify-content:space-between;gap:2rem;flex-wrap:wrap;
+  margin-bottom:4rem;
+}
+
+.jobs-scroll{
+  display:flex;gap:1rem;
+  overflow-x:auto;padding-bottom:1rem;
+  scrollbar-width:none;
+}
+.jobs-scroll::-webkit-scrollbar{display:none;}
+
+.job-card{
+  min-width:300px;
+  background:var(--ink);
+  border:1px solid var(--gb);
+  border-radius:10px;
+  padding:2rem;
+  flex-shrink:0;
+  position:relative;overflow:hidden;
+  cursor:none;
+  transition:border-color .3s,transform .3s;
+  opacity:0;transform:translateX(30px);
+  transition:opacity .5s,transform .5s,border-color .3s;
+}
+.job-card.vis{opacity:1;transform:translateX(0);}
+.job-card:hover{border-color:rgba(0,255,225,.25);transform:translateY(-4px);}
+.job-card::after{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--c),var(--c2));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .4s cubic-bezier(.7,0,.3,1);
+}
+.job-card:hover::after{transform:scaleX(1);}
+
+.jbadge{
+  display:inline-block;
+  font-family:'Fira Mono',monospace;
+  font-size:.6rem;letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:.25rem .65rem;
+  border-radius:100px;
+  margin-bottom:1.2rem;
+}
+.jbadge.live{background:rgba(0,255,225,.08);color:var(--c);border:1px solid rgba(0,255,225,.2);}
+.jbadge.hot{background:rgba(255,45,107,.08);color:var(--c3);border:1px solid rgba(255,45,107,.2);}
+.jbadge.new{background:rgba(123,47,255,.08);color:#b16fff;border:1px solid rgba(123,47,255,.2);}
+
+.jname{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.4rem;letter-spacing:.06em;
+  margin-bottom:.8rem;
+}
+.jmeta{
+  display:flex;gap:.6rem;flex-wrap:wrap;
+  margin-bottom:1.5rem;
+}
+.jmeta span{
+  font-size:.7rem;font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--dim);
+  padding:.2rem .6rem;
+  background:var(--glass);
+  border:1px solid var(--gb);
+  border-radius:4px;
+}
+.apply-btn{
+  font-family:'Fira Mono',monospace;
+  font-size:.7rem;letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--c);
+  background:transparent;
+  border:1px solid rgba(0,255,225,.25);
+  border-radius:4px;
+  padding:.5rem 1rem;
+  cursor:none;
+  text-decoration:none;
+  display:inline-block;
+  transition:background .3s,box-shadow .3s;
+}
+.apply-btn:hover{
+  background:rgba(0,255,225,.08);
+  box-shadow:0 0 18px rgba(0,255,225,.15);
+}
+
+/* ── CONTACT ── */
+#contact{background:var(--ink);}
+
+.contact-grid{
+  display:grid;
+  grid-template-columns:1fr 1.1fr;
+  gap:4rem;
+  align-items:start;
+  margin-top:4rem;
+}
+
+.contact-left{}
+.contact-tagline{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(3rem,6vw,5.5rem);
+  letter-spacing:.04em;
+  line-height:.95;
+  margin-bottom:2rem;
+}
+.contact-tagline .g{
+  background:linear-gradient(90deg,var(--c),var(--c2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.contact-detail{
+  display:flex;align-items:center;gap:1rem;
+  font-size:.88rem;color:rgba(232,238,255,.5);
+  margin-bottom:1rem;
+}
+.contact-detail .ico{
+  width:38px;height:38px;
+  background:rgba(0,255,225,.05);
+  border:1px solid rgba(0,255,225,.12);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;flex-shrink:0;
+}
+
+.form-box{
+  background:var(--ink2);
+  border:1px solid var(--gb);
+  border-radius:14px;
+  padding:2.5rem;
+}
+.fg{margin-bottom:1.2rem;}
+.fg label{
+  display:block;
+  font-family:'Fira Mono',monospace;
+  font-size:.62rem;letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--dim);margin-bottom:.5rem;
+}
+.fg input,.fg textarea,.fg select{
+  width:100%;
+  background:rgba(255,255,255,.025);
+  border:1px solid var(--gb);
+  border-radius:6px;
+  color:var(--w);
+  font-family:'Outfit',sans-serif;
+  font-size:.88rem;
+  padding:.75rem 1rem;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  resize:vertical;
+}
+.fg input:focus,.fg textarea:focus,.fg select:focus{
+  border-color:rgba(0,255,225,.3);
+  box-shadow:0 0 0 3px rgba(0,255,225,.05);
+}
+.fg select option{background:#07091a;}
+.submit-btn{
+  width:100%;padding:.9rem;
+  background:linear-gradient(90deg,var(--c),#00b8c8);
+  color:var(--ink);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.1rem;letter-spacing:.14em;
+  border:none;border-radius:6px;
+  cursor:none;
+  transition:box-shadow .3s,transform .2s;
+  position:relative;overflow:hidden;
+}
+.submit-btn:hover{
+  box-shadow:0 0 40px rgba(0,255,225,.35),0 0 80px rgba(0,255,225,.1);
+  transform:translateY(-1px);
+}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--gb);
+  padding:2.2rem 4%;
+  display:flex;align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;
+  position:relative;z-index:2;
+  background:var(--ink);
+}
+.flogo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.4rem;letter-spacing:.14em;
+  background:linear-gradient(90deg,var(--c),var(--c2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+footer p{font-size:.75rem;color:var(--dim);}
+.socials{display:flex;gap:.5rem;}
+.socials a{
+  width:34px;height:34px;
+  background:var(--glass);
+  border:1px solid var(--gb);
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;font-size:.85rem;
+  transition:border-color .2s,background .2s;
+}
+.socials a:hover{
+  border-color:rgba(0,255,225,.3);
+  background:rgba(0,255,225,.06);
+}
+
+/* ── DIVIDER ── */
+.div{
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--gb) 30%,var(--gb) 70%,transparent);
+  position:relative;z-index:2;
+}
+
+/* ── SCROLL PROGRESS ── */
+#scroll-bar{
+  position:fixed;top:0;left:0;height:2px;
+  background:linear-gradient(90deg,var(--c),var(--c2),var(--c3));
+  z-index:300;width:0%;
+  transition:width .1s linear;
+}
+
+/* ── HERO TICKER ── */
+.hero-ticker{
+  display:flex;gap:2.5rem;flex-wrap:wrap;
+  margin-top:4rem;padding-top:2rem;
+  border-top:1px solid var(--gb);
+  animation:fadeSlide .8s .5s ease both;
+}
+.ticker-item{text-align:left;}
+.ticker-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2.2rem;letter-spacing:.04em;
+  background:linear-gradient(90deg,var(--c),var(--c2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.ticker-lbl{
+  font-size:.7rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--dim);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeSlide{
+  from{opacity:0;transform:translateY(22px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes scan{
+  0%{transform:translateY(-100%);}
+  100%{transform:translateY(100vh);}
+}
+
+/* scanline hero */
+#hero::before{
+  content:'';position:absolute;
+  left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,255,225,.15),transparent);
+  animation:scan 8s linear infinite;
+  z-index:1;pointer-events:none;
+}
+
+/* ── SPLIT TEXT REVEAL ── */
+.reveal-wrap{overflow:hidden;}
+.reveal-inner{
+  display:block;
+  transform:translateY(100%);
+  transition:transform .7s cubic-bezier(.7,0,.3,1);
+}
+.reveal-inner.shown{transform:translateY(0);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .nlinks,.ncta-wrap{display:none;}
+  .svc-row{grid-template-columns:40px 1fr;gap:1rem;}
+  .svc-tag,.svc-desc{display:none;}
+  .bento-grid{grid-template-columns:1fr 1fr;}
+  .b1,.b2,.b3,.b4,.b5,.b6,.b7{grid-column:span 2;}
+  .contact-grid{grid-template-columns:1fr;}
+}
+@media(max-width:580px){
+  .bento-grid{grid-template-columns:1fr;}
+  .b1,.b2,.b3,.b4,.b5,.b6,.b7{grid-column:span 1;}
+  .hero-h1{font-size:5rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- FX layers -->
+<div id="noise"></div>
+<canvas id="bg-canvas"></canvas>
+<div id="scroll-bar"></div>
+<div id="cur"></div>
+<div id="cur2"></div>
+<div id="cur3"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nlogo">KIEYVERSE</div>
+  <ul class="nlinks">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#careers">Careers</a></li>
+    <li><a href="#why-us">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="ncta"><span>Get Started</span></a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="eyebrow"><span class="eyebrow-line"></span> Digital Universe Agency — Est. 2024</div>
+    <h1 class="hero-h1">
+      <span class="h1-stroke">KIEY</span>
+      <span class="h1-fill" data-text="VERSE">VERSE</span>
+    </h1>
+    <p class="hero-sub">Empowering brands and careers at the intersection of technology and vision. Recruitment, marketing, branding and upskilling — unified in one universe.</p>
+    <div class="hero-ctas">
+      <a href="#services" class="ncta" style="font-size:.75rem;padding:.7rem 1.6rem;"><span>Explore Universe</span></a>
+      <a href="#contact" style="
+        font-family:'Fira Mono',monospace;font-size:.72rem;
+        letter-spacing:.1em;text-transform:uppercase;
+        color:rgba(232,238,255,.4);text-decoration:none;
+        display:flex;align-items:center;gap:.5rem;
+        padding:.55rem 0;
+        transition:color .2s;
+      " onmouseover="this.style.color='#e8eeff'" onmouseout="this.style.color='rgba(232,238,255,.4)'">
+        Talk to us <span style="font-size:.9rem;">→</span>
+      </a>
+    </div>
+    <div class="hero-ticker">
+      <div class="ticker-item">
+        <div class="ticker-num" data-count="200">0+</div>
+        <div class="ticker-lbl">Expert Mentors</div>
+      </div>
+      <div class="ticker-item">
+        <div class="ticker-num" data-count="40">0+</div>
+        <div class="ticker-lbl">Countries Served</div>
+      </div>
+      <div class="ticker-item">
+        <div class="ticker-num" data-count="98">0%</div>
+        <div class="ticker-lbl">Placement Rate</div>
+      </div>
+      <div class="ticker-item">
+        <div class="ticker-num" data-count="500">0+</div>
+        <div class="ticker-lbl">Brands Grown</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap" aria-hidden="true">
+  <div class="marquee-track">
+    <div class="marquee-item">Talent Recruitment</div>
+    <div class="marquee-item">Digital Marketing</div>
+    <div class="marquee-item">Brand Strategy</div>
+    <div class="marquee-item">Upskilling Programs</div>
+    <div class="marquee-item">SEO & PPC</div>
+    <div class="marquee-item">Career Growth</div>
+    <div class="marquee-item">Digital Universe</div>
+    <div class="marquee-item">Talent Recruitment</div>
+    <div class="marquee-item">Digital Marketing</div>
+    <div class="marquee-item">Brand Strategy</div>
+    <div class="marquee-item">Upskilling Programs</div>
+    <div class="marquee-item">SEO & PPC</div>
+    <div class="marquee-item">Career Growth</div>
+    <div class="marquee-item">Digital Universe</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services" class="s-wrap">
+  <div class="s-label">Our Services</div>
+  <h2 class="s-title">WHAT WE BUILD<br>FOR YOU</h2>
+  <p class="s-desc">Four core disciplines, one cohesive mission: accelerate your growth in the digital age.</p>
+
+  <div class="services-list">
+    <div class="svc-row">
+      <span class="svc-num">01</span>
+      <span class="svc-name">Skilled Manpower</span>
+      <span class="svc-tag">Recruitment</span>
+      <span class="svc-desc">Bridging top-tier talent with industry leaders. We don't just fill roles — we architect careers and fuel companies.</span>
+      <span class="svc-icon">🌐</span>
+    </div>
+    <div class="svc-row">
+      <span class="svc-num">02</span>
+      <span class="svc-name">Digital Marketing</span>
+      <span class="svc-tag">SEO · PPC · Social</span>
+      <span class="svc-desc">Data-fuelled strategies that convert audiences into loyal communities and clicks into revenue.</span>
+      <span class="svc-icon">📡</span>
+    </div>
+    <div class="svc-row">
+      <span class="svc-num">03</span>
+      <span class="svc-name">Digital Upskilling</span>
+      <span class="svc-tag">Certified Courses</span>
+      <span class="svc-desc">Certified programs engineered for the modern workforce. Master tomorrow's tools, starting now.</span>
+      <span class="svc-icon">🚀</span>
+    </div>
+    <div class="svc-row">
+      <span class="svc-num">04</span>
+      <span class="svc-name">Brand Consulting</span>
+      <span class="svc-tag">Identity · Strategy</span>
+      <span class="svc-desc">Crafting identities that cut through the noise. Strategy, visuals, and voice — one unforgettable brand.</span>
+      <span class="svc-icon">💎</span>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- WHY US — BENTO -->
+<section id="why-us" class="s-wrap">
+  <div class="s-label">Why KIEYVERSE</div>
+  <h2 class="s-title">BUILT ON RESULTS,<br>POWERED BY VISION</h2>
+
+  <div class="bento-grid">
+
+    <div class="bento-cell b1">
+      <div class="bento-badge">Global Reach</div>
+      <div class="bento-stat">40+</div>
+      <div class="bento-label">Countries in Our Network</div>
+      <p class="bento-body" style="margin-top:1rem;">From Chennai to the world — our talent and marketing reach spans continents, connecting ambition with opportunity everywhere.</p>
+      <div class="bento-glow"></div>
+    </div>
+
+    <div class="bento-cell b2">
+      <span class="bento-icon">🏆</span>
+      <div class="bento-title">EXPERT MENTORS</div>
+      <div class="bento-stat" style="font-size:3.5rem;">200+</div>
+      <div class="bento-label">Industry veterans, guiding you</div>
+    </div>
+
+    <div class="bento-cell b3" style="background:linear-gradient(135deg,rgba(0,255,225,.05),rgba(123,47,255,.08));">
+      <div class="bento-stat" style="font-size:3.5rem;">24/7</div>
+      <div class="bento-label">Dedicated Support</div>
+      <p class="bento-body" style="margin-top:.75rem;">Always on. Always available. Real help when you need it most.</p>
+    </div>
+
+    <div class="bento-cell b4">
+      <span class="bento-icon">📜</span>
+      <div class="bento-title">INDUSTRY-CERTIFIED</div>
+      <p class="bento-body">Every course recognized by leading industry bodies. Credentials that matter.</p>
+    </div>
+
+    <div class="bento-cell b5" style="background:linear-gradient(135deg,rgba(255,45,107,.04),rgba(123,47,255,.06));">
+      <div class="bento-stat" style="font-size:3.5rem;">98%</div>
+      <div class="bento-label">Placement Rate</div>
+    </div>
+
+    <div class="bento-cell b6">
+      <div class="bento-title">DATA-FIRST MARKETING</div>
+      <p class="bento-body">Every campaign is backed by deep analytics. No guesswork — only strategies that convert.</p>
+      <div class="bento-glow bento-glow2"></div>
+    </div>
+
+    <div class="bento-cell b7" style="background:rgba(0,255,225,.03);">
+      <div style="display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+        <div>
+          <div class="bento-title" style="font-size:2.5rem;">YOUR GROWTH<br>IS OUR MISSION</div>
+          <p class="bento-body" style="max-width:380px;margin-top:.8rem;">Whether you're scaling a brand or building a career — KIEYVERSE is the launchpad that gets you there faster.</p>
+        </div>
+        <div style="margin-left:auto;">
+          <a href="#contact" class="ncta"><span>Start Now →</span></a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- CAREERS -->
+<section id="careers" class="s-wrap">
+  <div class="jobs-header">
+    <div>
+      <div class="s-label">Immediate Openings</div>
+      <h2 class="s-title">CAREERS AT THE<br>DIGITAL FRONTIER</h2>
+    </div>
+    <a href="#contact" style="
+      font-family:'Fira Mono',monospace;font-size:.7rem;
+      letter-spacing:.1em;text-transform:uppercase;
+      color:var(--dim);text-decoration:none;
+      border-bottom:1px solid var(--gb);padding-bottom:.2rem;
+      transition:color .2s,border-color .2s;
+    " onmouseover="this.style.color='#00ffe1';this.style.borderColor='rgba(0,255,225,.4)'" 
+       onmouseout="this.style.color='var(--dim)';this.style.borderColor='var(--gb)'">View All Positions →</a>
+  </div>
+
+  <div class="jobs-scroll">
+    <div class="job-card">
+      <div class="jbadge live">● Hiring Now</div>
+      <div class="jname">Marketing Executive</div>
+      <div class="jmeta"><span>Full-Time</span><span>Remote</span><span>0–2 yrs</span></div>
+      <a href="#contact" class="apply-btn">Apply Now →</a>
+    </div>
+    <div class="job-card">
+      <div class="jbadge hot">🔥 Urgent</div>
+      <div class="jname">Content Creator</div>
+      <div class="jmeta"><span>Part / Full</span><span>Hybrid</span><span>1+ yr</span></div>
+      <a href="#contact" class="apply-btn">Apply Now →</a>
+    </div>
+    <div class="job-card">
+      <div class="jbadge live">● Hiring Now</div>
+      <div class="jname">Beautician / Wellness</div>
+      <div class="jmeta"><span>Full-Time</span><span>On-site</span><span>Certified</span></div>
+      <a href="#contact" class="apply-btn">Apply Now →</a>
+    </div>
+    <div class="job-card">
+      <div class="jbadge new">✦ Featured</div>
+      <div class="jname">SEO Strategist</div>
+      <div class="jmeta"><span>Full-Time</span><span>Remote</span><span>2+ yrs</span></div>
+      <a href="#contact" class="apply-btn">Apply Now →</a>
+    </div>
+    <div class="job-card">
+      <div class="jbadge hot">🔥 Urgent</div>
+      <div class="jname">Brand Design Consultant</div>
+      <div class="jmeta"><span>Contract</span><span>Hybrid</span><span>Portfolio req.</span></div>
+      <a href="#contact" class="apply-btn">Apply Now →</a>
+    </div>
+    <div class="job-card">
+      <div class="jbadge live">● Hiring Now</div>
+      <div class="jname">HR & Talent Acquisition</div>
+      <div class="jmeta"><span>Full-Time</span><span>On-site</span><span>1+ yr</span></div>
+      <a href="#contact" class="apply-btn">Apply Now →</a>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- CONTACT -->
+<section id="contact" class="s-wrap">
+  <div class="s-label">Get In Touch</div>
+
+  <div class="contact-grid">
+    <div class="contact-left">
+      <div class="contact-tagline">
+        LET'S BUILD YOUR<br><span class="g">DIGITAL</span><br>UNIVERSE
+      </div>
+
+      <div class="contact-detail"><div class="ico">✉</div>kieyverse@gmail.com</div>
+      <div class="contact-detail"><div class="ico">🌐</div>kieyverse.in</div>
+      <div class="contact-detail"><div class="ico">📍</div>India — Serving Globally</div>
+
+      <div style="margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--gb);">
+        <p style="font-size:.78rem;color:var(--dim);letter-spacing:.06em;margin-bottom:1rem;font-family:'Fira Mono',monospace;text-transform:uppercase;">Follow the Verse</p>
+        <div class="socials" style="display:flex;gap:.6rem;">
+          <a href="#" style="width:38px;height:38px;background:var(--glass);border:1px solid var(--gb);border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:.9rem;transition:border-color .2s,background .2s;" onmouseover="this.style.borderColor='rgba(0,255,225,.3)';this.style.background='rgba(0,255,225,.06)'" onmouseout="this.style.borderColor='var(--gb)';this.style.background='var(--glass)'">📷</a>
+          <a href="#" style="width:38px;height:38px;background:var(--glass);border:1px solid var(--gb);border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:.9rem;transition:border-color .2s,background .2s;" onmouseover="this.style.borderColor='rgba(0,255,225,.3)';this.style.background='rgba(0,255,225,.06)'" onmouseout="this.style.borderColor='var(--gb)';this.style.background='var(--glass)'">💼</a>
+          <a href="#" style="width:38px;height:38px;background:var(--glass);border:1px solid var(--gb);border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:.9rem;transition:border-color .2s,background .2s;" onmouseover="this.style.borderColor='rgba(0,255,225,.3)';this.style.background='rgba(0,255,225,.06)'" onmouseout="this.style.borderColor='var(--gb)';this.style.background='var(--glass)'">🐦</a>
+          <a href="#" style="width:38px;height:38px;background:var(--glass);border:1px solid var(--gb);border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:.9rem;transition:border-color .2s,background .2s;" onmouseover="this.style.borderColor='rgba(0,255,225,.3)';this.style.background='rgba(0,255,225,.06)'" onmouseout="this.style.borderColor='var(--gb)';this.style.background='var(--glass)'">💬</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-box">
+      <div class="fg"><label>Your Name</label><input type="text" placeholder="e.g. Arjun Sharma"></div>
+      <div class="fg"><label>Email Address</label><input type="email" placeholder="you@company.com"></div>
+      <div class="fg">
+        <label>I Need Help With</label>
+        <select>
+          <option value="">Select a Service</option>
+          <option>Skilled Manpower Recruitment</option>
+          <option>Digital Marketing</option>
+          <option>Digital Upskilling</option>
+          <option>Branding Consultation</option>
+          <option>Career Opportunity</option>
+        </select>
+      </div>
+      <div class="fg"><label>Message</label><textarea rows="4" placeholder="Tell us about your goals..."></textarea></div>
+      <button class="submit-btn">LAUNCH YOUR JOURNEY →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="flogo">KIEYVERSE</div>
+  <p>© 2025 Kieyverse — The Digital Universe</p>
+  <div style="font-family:'Fira Mono',monospace;font-size:.65rem;color:var(--dim);letter-spacing:.1em;">kieyverse@gmail.com</div>
+</footer>
+
+<script>
+/* ── CURSOR ── */
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2'),cur3=document.getElementById('cur3');
+let mx=0,my=0,r2x=0,r2y=0,r3x=0,r3y=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+function animCur(){
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+  r2x+=(mx-r2x)*.14;r2y+=(my-r2y)*.14;
+  cur2.style.left=r2x+'px';cur2.style.top=r2y+'px';
+  r3x+=(mx-r3x)*.06;r3y+=(my-r3y)*.06;
+  cur3.style.left=r3x+'px';cur3.style.top=r3y+'px';
+  requestAnimationFrame(animCur);
+}
+animCur();
+document.querySelectorAll('a,button,.svc-row,.job-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    cur2.style.width='60px';cur2.style.height='60px';
+    cur2.style.borderColor='rgba(0,255,225,.7)';
+  });
+  el.addEventListener('mouseleave',()=>{
+    cur2.style.width='40px';cur2.style.height='40px';
+    cur2.style.borderColor='rgba(0,255,225,.35)';
+  });
+});
+
+/* ── SCROLL PROGRESS ── */
+window.addEventListener('scroll',()=>{
+  const pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  document.getElementById('scroll-bar').style.width=pct+'%';
+});
+
+/* ── CANVAS PARTICLE FIELD ── */
+const canvas=document.getElementById('bg-canvas');
+const ctx=canvas.getContext('2d');
+let W,H,pts=[],lines=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',()=>{resize();initPts();});
+
+function initPts(){
+  pts=[];
+  const n=Math.floor(W*H/18000);
+  for(let i=0;i<n;i++){
+    pts.push({
+      x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,
+      r:Math.random()*1.5+.4,
+      alpha:Math.random()*.5+.1
+    });
+  }
+}
+initPts();
+
+function drawFrame(){
+  ctx.clearRect(0,0,W,H);
+
+  // Move & draw points
+  for(let p of pts){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>W)p.vx*=-1;
+    if(p.y<0||p.y>H)p.vy*=-1;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(0,255,225,${p.alpha})`;
+    ctx.fill();
+  }
+
+  // Connection lines
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){
+        ctx.beginPath();
+        ctx.moveTo(pts[i].x,pts[i].y);
+        ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=`rgba(0,255,225,${.06*(1-d/120)})`;
+        ctx.lineWidth=.5;
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Cursor repulsion
+  for(let p of pts){
+    const dx=p.x-mx,dy=p.y-my,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<100){
+      p.x+=dx/d*1.5;p.y+=dy/d*1.5;
+    }
+  }
+
+  requestAnimationFrame(drawFrame);
+}
+drawFrame();
+
+/* ── INTERSECTION OBSERVER ── */
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('vis');
+      if(e.target.classList.contains('reveal-inner'))e.target.classList.add('shown');
+    }
+  });
+},{threshold:.1});
+document.querySelectorAll('.bento-cell,.job-card').forEach(el=>io.observe(el));
+
+/* ── HERO TEXT REVEAL ── */
+setTimeout(()=>{
+  document.querySelector('.h1-fill').classList.add('reveal');
+},600);
+
+/* ── NUMBER COUNTERS ── */
+function animateCount(el,target,suffix){
+  let start=0;
+  const step=target/60;
+  const t=setInterval(()=>{
+    start+=step;
+    if(start>=target){start=target;clearInterval(t);}
+    el.textContent=Math.floor(start)+suffix;
+  },18);
+}
+const cio=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const cnt=parseInt(e.target.dataset.count);
+      const txt=e.target.textContent;
+      const suffix=txt.includes('%')? '%':'+';
+      animateCount(e.target,cnt,suffix);
+      cio.unobserve(e.target);
+    }
+  });
+},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+/* ── STAGGER JOB CARDS ── */
+const jcio=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const cards=document.querySelectorAll('.job-card');
+      cards.forEach((c,i)=>{
+        setTimeout(()=>c.classList.add('vis'),i*80);
+      });
+      jcio.disconnect();
+    }
+  });
+},{threshold:.1});
+const jc=document.querySelector('.jobs-scroll');
+if(jc)jcio.observe(jc);
+</script>
+</body>
+</html>
